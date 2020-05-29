@@ -40,9 +40,7 @@
           <p matLine><span>--{{Comment.author}} {{Comment.date | date}}</span></p>
         </mat-list-item>
       </mat-list> 
-      <div [hidden]="dish">
-        <mat-spinner></mat-spinner><h4>Loading . . . Please Wait</h4>
-      </div>
+      
       <form novalidate [formGroup]="reactiveForm" (ngSubmit)="onSubmit()">
         <p>
           <mat-form-field class="full-width">
@@ -64,6 +62,12 @@
       </form>
       
     </div>
-
+    <div [hidden]="dish || errMess">
+      <mat-spinner></mat-spinner><h4>Loading . . . Please Wait</h4>
+    </div>
+    <div fxFlex *ngIf="errMess">
+      <h2>Error</h2>
+      <h4>{{errorMess}}</h4>
+    </div>
   
   </div>

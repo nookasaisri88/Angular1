@@ -37,6 +37,8 @@ import { HttpModule } from '@angular/http';
 import {HttpClientModule} from '@angular/common/http';
 import {baseURL} from './shared/baseurl';
 
+import {ProcessHTTPMsgService} from './services/process-httpmsg.service';
+ 
 import {MatSliderModule} from '@angular/material/slider';
 @NgModule({
   declarations: [
@@ -77,6 +79,7 @@ import {MatSliderModule} from '@angular/material/slider';
     DishService,
     PromotionService,
     LeaderService,
+    ProcessHTTPMsgService,
     {provide: 'BaseURL',useValue:baseURL}
   ],
   entryComponents:[
