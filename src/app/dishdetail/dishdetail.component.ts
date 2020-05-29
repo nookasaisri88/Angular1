@@ -5,21 +5,22 @@ import {Dish} from '../shared/dish';
 import {DishService} from '../services/dish.service'; 
 import {switchMap, switchMapTo} from 'rxjs/operators';
 import { FormGroup, FormBuilder ,Validators} from '@angular/forms';
-import {Reactive} from '../shared/reactive';
+import {Comment} from '../shared/comment';
 @Component({
   selector: 'app-dishdetail',
   templateUrl: './dishdetail.component.html',
   styleUrls: ['./dishdetail.component.scss']
 })
 export class DishdetailComponent implements OnInit {
-  reactiveForm:FormGroup;
-  reactive:Reactive;
+  commentForm:FormGroup;
+  comment:Comment;
   dishIds:string[];
   prev:string;
   next:string;
   dish:Dish;
   errMess:string;
-  @ViewChild('rform') reactiveFormDirective;
+  dishcopy:Dish;
+  @ViewChild('rform') commentFormDirective;
 
   formErrors={
     'author':'',
@@ -49,26 +50,27 @@ export class DishdetailComponent implements OnInit {
     this.route.params.pipe(switchMap((params:Params)=>this.dishService.getDish(params['id'])))
     .subscribe(dish=>{
       this.dish=dish;
+      this.dishcopy=dish;
       this.setPrevNext(dish.id);
     },
     errmess=>this.errMess=<any>errmess);
   }
 
   createForm(){
-    this.reactiveForm=this.fb.group({
+    this.commentForm=this.fb.group({
       author:['',[ Validators.required, Validators.minLength(2)]],
       rating:5,
       comment:['',Validators.required],
       date:''
     });
-    this.reactiveForm.valueChanges
+    this.commentForm.valueChanges
     .subscribe(data=>this.onValueChanged(data));
     this.onValueChanged();
   }
 
   onValueChanged(data?:any){
-    if (!this.reactiveForm) { return; }
-    const form = this.reactiveForm;
+    if (!this.commentForm) { return; }
+    const form = this.commentForm;
     for (const field in this.formErrors) {
       if (this.formErrors.hasOwnProperty(field)) {
         // clear previous error message (if any)
@@ -87,17 +89,26 @@ export class DishdetailComponent implements OnInit {
   }
 
   onSubmit(){
-    this.reactive=this.reactiveForm.value;
+    this.comment=this.commentForm.value;
     
-    (this.reactive.date)=new Date().toISOString();
-    console.log(this.reactive);
-    this.dish.comments.push(this.reactive);
-    this.reactiveForm.reset({
+    (this.comment.date)=new Date().toISOString();
+    console.log(this.comment);
+    this.dishcopy.comments.push(this.comment);
+    this.dishService.putDish(this.dishcopy)
+    .subscribe(dish=>{
+      this.dish=dish;
+      this.dishcopy=dish;
+    },
+    errmess=>{this.dish=null;
+      this.dishcopy=null;
+      this.errMess=<any>errmess;});
+    this.commentFormDirective.resetForm();
+    this.commentForm.reset({
       rating:5,
       comment:'',
       author:''
     });
-    this.reactiveFormDirective.resetForm();
+    
     
   }
   setPrevNext(dishId:string){
